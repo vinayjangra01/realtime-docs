@@ -41,6 +41,8 @@ const Editor = () => {
     const [quill, setQuill] = useState<Quill | null>(null);
     const { id } = useParams();
 
+    const SERVER_URL = 'https://realtime-docs-smd3.onrender.com';
+
     useEffect(() => {
         const container = document.querySelector('#container');
         if (container) container.innerHTML = '';
@@ -51,7 +53,7 @@ const Editor = () => {
     }, []);
 
     useEffect(() => {
-        const socketServer = io('http://localhost:9000');
+        const socketServer = io(SERVER_URL);
         setSocket(socketServer);
 
         return () => {
