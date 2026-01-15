@@ -42,6 +42,8 @@ const Editor = () => {
     const { id } = useParams();
 
     useEffect(() => {
+        const container = document.querySelector('#container');
+        if (container) container.innerHTML = '';
         const quillServer = new Quill('#container', { theme: 'snow', modules: { toolbar: toolbarOptions }});
         quillServer.disable();
         quillServer.setText('Loading the document...')
@@ -60,7 +62,7 @@ const Editor = () => {
     useEffect(() => {
         if (socket === null || quill === null) return;
 
-        const handleChange = (delta: Delta, oldData: Delta, source: string) => {
+        const handleChange = (delta: Delta, _oldData: Delta, source: string) => {
             if (source !== 'user') return;
 
             socket.emit('send-changes', delta);
@@ -91,10 +93,17 @@ const Editor = () => {
         if (quill === null || socket === null) return;
 
         socket.once('load-document', document => {
-            quill.setContents(document);
+            console.log('Received load-document', document);
+            // Handle existing empty documents or valid delta
+            if (typeof document === 'string' && document.length === 0) {
+                 quill.setContents([{ insert: '\n' }]);
+            } else {
+                 quill.setContents(document);
+            }
             quill.enable();
         })
 
+        console.log('Emitting get-document', id);
         socket.emit('get-document', id);
     },  [quill, socket, id]);
 
