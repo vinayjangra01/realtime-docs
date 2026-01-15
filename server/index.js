@@ -2,8 +2,17 @@ import { Server } from 'socket.io';
 import 'dotenv/config';
 
 import Connection from './db/db.js';
+import cors from "cors";
+import express from "express";
 
 import { getDocument, updateDocument } from './controller/document.controller.js'
+
+
+const app = express();
+app.use(cors({
+  origin: "*"
+}));
+
 
 const PORT = process.env.PORT || 9000;
 
@@ -11,9 +20,13 @@ Connection();
 
 const io = new Server(PORT, {
     cors: {
-        origin: 'http://localhost:5173',
+        origin: process.env.CLIENT_URL,
         methods: ['GET', 'POST']
     }
+});
+
+app.get("/", (req, res) => {
+  res.send("Socket server running ✅");
 });
 
 io.on('connection', socket => {
